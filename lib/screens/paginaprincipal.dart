@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../theme/app_colors.dart';
+import 'login_screen.dart';
 
 class PaginaPrincipal extends StatelessWidget {
   const PaginaPrincipal({super.key});
@@ -6,129 +8,185 @@ class PaginaPrincipal extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF121212), // Fundo escuro idêntico ao design
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Cabeçalho / Logótipo
-              Row(
-                children: [
-                  const Icon(Icons.science, color: Color(0xFFD4AF37), size: 28),
-                  const SizedBox(width: 8),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: const [
-                      Text(
-                        'CATARINA DOMINGOS',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 12,
-                        ),
-                      ),
-                      Text(
-                        'LABORATÓRIO PRÓTESE DENTÁRIA',
-                        style: TextStyle(
-                          color: Colors.grey,
-                          fontSize: 9,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-              const SizedBox(height: 40),
-
-              // Título Principal
-              const Text(
-                'Bem-vindo ao\nLaboratório\nCatarina\nDomingos.',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 32,
-                  fontWeight: FontWeight.bold,
-                  height: 1.1,
-                ),
-              ),
-              const SizedBox(height: 16),
-
-              // Subtítulo descritivo
-              const Text(
-                'Entre na área reservada para acompanhar pedidos, gerir a produção e comunicar com o laboratório.',
-                style: TextStyle(
-                  color: Colors.grey,
-                  fontSize: 14,
-                ),
-              ),
-              const SizedBox(height: 30),
-
-              // Cartão / Caixa de "Área Reservada"
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF1E1E1E),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.white12),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: AppColors.backgroundGradient,
+        ),
+        child: SafeArea(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(24.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Cabeçalho / Logótipo
+                Row(
                   children: [
-                    const Text(
-                      'ÁREA RESERVADA',
-                      style: TextStyle(
-                        color: Colors.grey,
-                        fontSize: 10,
-                        letterSpacing: 1.2,
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        gradient: AppColors.goldGradient,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: const Text(
+                        'CD',
+                        style: TextStyle(
+                          color: AppColors.bgDark,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18,
+                        ),
                       ),
                     ),
-                    const SizedBox(height: 4),
-                    const Text(
-                      'Identifique-se para continuar',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-
-                    // Botão "Iniciar Sessão"
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFFD4AF37), // Tom dourado/amarelo do design
-                          foregroundColor: Colors.black,
-                          padding: const EdgeInsets.symmetric(vertical: 14),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
+                    const SizedBox(width: 12),
+                    const Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'CATARINA DOMINGOS',
+                          style: TextStyle(
+                            color: AppColors.textLight,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 13,
+                            letterSpacing: 1.1,
                           ),
                         ),
-                        onPressed: () {
-                          // Ação para navegar para o próximo ecrã de login/área reservada
-                        },
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: const [
-                            Text(
-                              'Iniciar sessão',
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 16,
-                              ),
-                            ),
-                            SizedBox(width: 8),
-                            Icon(Icons.arrow_forward, size: 18),
-                          ],
+                        Text(
+                          'LABORATÓRIO PRÓTESE DENTÁRIA',
+                          style: TextStyle(
+                            color: AppColors.creamBeige,
+                            fontSize: 9,
+                            letterSpacing: 0.8,
+                          ),
                         ),
-                      ),
+                      ],
                     ),
                   ],
                 ),
-              ),
-            ],
+                const SizedBox(height: 16),
+                const Text(
+                  '— RECEÇÃO DIGITAL',
+                  style: TextStyle(
+                    color: AppColors.goldPrimary,
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: 1.2,
+                  ),
+                ),
+                const SizedBox(height: 24),
+
+                // Título Principal com destaque dourado
+                RichText(
+                  text: const TextSpan(
+                    style: TextStyle(
+                      fontSize: 34,
+                      fontWeight: FontWeight.bold,
+                      height: 1.15,
+                    ),
+                    children: [
+                      TextSpan(
+                        text: 'Bem-vindo ao\n',
+                        style: TextStyle(color: AppColors.textLight),
+                      ),
+                      TextSpan(
+                        text: 'Laboratório\nCatarina\nDomingos.',
+                        style: TextStyle(color: AppColors.goldPrimary),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 16),
+
+                const Text(
+                  'Entre na área reservada para acompanhar pedidos, gerir a produção e comunicar com o laboratório.',
+                  style: TextStyle(
+                    color: AppColors.creamBeige,
+                    fontSize: 13,
+                    height: 1.4,
+                  ),
+                ),
+                const SizedBox(height: 28),
+                // Cartão "Área Reservada"
+                Container(
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: AppColors.surfaceDark.withOpacity(0.85),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: AppColors.goldDark.withOpacity(0.4)),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'ÁREA RESERVADA',
+                        style: TextStyle(
+                          color: AppColors.creamBeige,
+                          fontSize: 10,
+                          letterSpacing: 1.2,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      const Text(
+                        'Identifique-se para continuar',
+                        style: TextStyle(
+                          color: AppColors.textLight,
+                          fontSize: 15,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+
+                      // Botão com Gradiente Dourado
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const LoginScreen(),
+                            ),
+                          );
+                        },
+                        child: Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.symmetric(vertical: 15),
+                          decoration: BoxDecoration(
+                            gradient: AppColors.goldGradient,
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: const Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                'Iniciar sessão',
+                                style: TextStyle(
+                                  color: AppColors.bgDark,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 15,
+                                ),
+                              ),
+                              SizedBox(width: 8),
+                              Icon(Icons.arrow_forward, color: AppColors.bgDark, size: 18),
+                            ],
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 14),
+                      const Row(
+                        children: [
+                          Icon(Icons.lock_outline, color: AppColors.creamBeige, size: 14),
+                          SizedBox(width: 6),
+                          Text(
+                            'Acesso seguro e reservado\nAdministrador · Colaborador · Cliente',
+                            style: TextStyle(
+                              color: AppColors.creamBeige,
+                              fontSize: 11,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
