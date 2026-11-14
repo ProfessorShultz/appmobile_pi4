@@ -1,13 +1,27 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 class AppColors {
   // Paleta de cores fornecida
-  static const Color goldDark = Color(0xFF926D4B);     // #926D4B - Dourado escuro / Bronze
-  static const Color goldPrimary = Color(0xFFCA9C68);  // #CA9C68 - Dourado principal
-  static const Color creamBeige = Color(0xFFD7C9AE);   // #D7C9AE - Bege / Texto secundário
-  static const Color surfaceDark = Color(0xFF2B2F2E);  // #2B2F2E - Fundo de cartões e inputs
-  static const Color bgDark = Color(0xFF191B1D);       // #191B1D - Fundo principal escuro
-  static const Color textLight = Color(0xFFE9DFD5);    // #E9DFD5 - Texto claro principal
+  static const Color goldDark = Color(
+    0xFF926D4B,
+  ); // #926D4B - Dourado escuro / Bronze
+  static const Color goldPrimary = Color(
+    0xFFCA9C68,
+  ); // #CA9C68 - Dourado principal
+  static const Color creamBeige = Color(
+    0xFFD7C9AE,
+  ); // #D7C9AE - Bege / Texto secundário
+  static const Color surfaceDark = Color(
+    0xFF2B2F2E,
+  ); // #2B2F2E - Fundo de cartões e inputs
+  static const Color bgDark = Color(
+    0xFF191B1D,
+  ); // #191B1D - Fundo principal escuro
+  static const Color textLight = Color(
+    0xFFE9DFD5,
+  ); // #E9DFD5 - Texto claro principal
+  static const Color cyanAccent = Color(0xFF1EC8C8);
+  static const Color greenOnline = Color(0xFF4CAF50);
 
   // Gradiente Dourado (para botões e destaques)
   static const LinearGradient goldGradient = LinearGradient(
