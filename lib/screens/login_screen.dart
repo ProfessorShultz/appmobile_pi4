@@ -1,64 +1,126 @@
 import 'package:flutter/material.dart';
 import '../theme/app_colors.dart';
 
-class LoginScreen extends StatefulWidget {
+class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
-
-  @override
-  State<LoginScreen> createState() => _LoginScreenState();
-}
-
-class _LoginScreenState extends State<LoginScreen> {
-  String perfilSelecionado = 'Administrador';
-  bool manterSessao = true;
-  bool ocultarPassword = true;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
+        width: double.infinity,
         height: double.infinity,
         decoration: const BoxDecoration(
           gradient: AppColors.backgroundGradient,
         ),
         child: SafeArea(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.all(24.0),
+            padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 18.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Botão para regressar ao ecrã anterior
-                GestureDetector(
-                  onTap: () => Navigator.pop(context),
-                  child: const Row(
-                    children: [
-                      Icon(Icons.arrow_back, color: AppColors.creamBeige, size: 16),
-                      SizedBox(width: 8),
-                      Text(
-                        'Regressar ao site institucional',
-                        style: TextStyle(
-                          color: AppColors.creamBeige,
-                          fontSize: 12,
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      children: [
+                        Container(
+                          width: 34,
+                          height: 34,
+                          alignment: Alignment.center,
+                          decoration: BoxDecoration(
+                            gradient: AppColors.goldGradient,
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: const Text(
+                            'CD',
+                            style: TextStyle(
+                              color: AppColors.bgDark,
+                              fontWeight: FontWeight.w900,
+                              fontSize: 16,
+                            ),
+                          ),
                         ),
+                        const SizedBox(width: 10),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              'CATARINA DOMINGOS',
+                              style: TextStyle(
+                                color: AppColors.textLight,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 11,
+                                letterSpacing: 1.0,
+                              ),
+                            ),
+                            Text(
+                              'LABORATÓRIO · PRÓTESE DENTÁRIA',
+                              style: TextStyle(
+                                color: AppColors.creamBeige.withValues(alpha: 0.6),
+                                fontSize: 8,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                    Text(
+                      'ESTGV · TDM — PI4',
+                      style: TextStyle(
+                        color: AppColors.creamBeige.withValues(alpha: 0.5),
+                        fontSize: 9,
+                        letterSpacing: 0.8,
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
-                const SizedBox(height: 24),
-
-                // Etiqueta Área Reservada
-                const Text(
-                  '— ÁREA RESERVADA',
-                  style: TextStyle(
-                    color: AppColors.goldPrimary,
-                    fontSize: 11,
-                    fontWeight: FontWeight.w600,
-                    letterSpacing: 1.2,
-                  ),
+                const SizedBox(height: 14),
+                Divider(
+                  color: AppColors.creamBeige.withValues(alpha: 0.1),
+                  height: 1,
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: 16),
 
-                // Título e Subtítulo
+                Row(
+                  children: [
+                    Icon(
+                      Icons.arrow_back,
+                      color: AppColors.creamBeige.withValues(alpha: 0.7),
+                      size: 15,
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      'Regressar ao site institucional',
+                      style: TextStyle(
+                        color: AppColors.creamBeige.withValues(alpha: 0.7),
+                        fontSize: 12,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 22),
+                Row(
+                  children: [
+                    Container(
+                      width: 20,
+                      height: 1.5,
+                      color: AppColors.goldPrimary,
+                    ),
+                    const SizedBox(width: 8),
+                    const Text(
+                      'ÁREA RESERVADA',
+                      style: TextStyle(
+                        color: AppColors.goldPrimary,
+                        fontSize: 10,
+                        fontWeight: FontWeight.w600,
+                        letterSpacing: 1.4,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 10),
+
                 const Text(
                   'Bem-vindo de volta',
                   style: TextStyle(
@@ -68,170 +130,234 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                 ),
                 const SizedBox(height: 6),
-                const Text(
+                Text(
                   'Aceda ao sistema integrado de gestão do laboratório.',
                   style: TextStyle(
-                    color: AppColors.creamBeige,
+                    color: AppColors.creamBeige.withValues(alpha: 0.75),
                     fontSize: 13,
                   ),
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: 22),
 
-                // Cartões de Seleção de Perfil
                 _buildRoleCard(
                   titulo: 'Administrador',
                   subtitulo: 'Acesso total',
                   icone: Icons.wb_sunny_outlined,
+                  selecionado: true,
                 ),
                 const SizedBox(height: 10),
                 _buildRoleCard(
                   titulo: 'Colaborador',
                   subtitulo: 'Produção',
                   icone: Icons.view_in_ar_outlined,
+                  selecionado: false,
                 ),
                 const SizedBox(height: 10),
                 _buildRoleCard(
                   titulo: 'Cliente',
-                  subtitulo: 'Clínica / Médico',
+                  subtitulo: 'Clínica / dentista',
                   icone: Icons.person_outline,
+                  selecionado: false,
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: 22),
 
-                // Campo Email Profissional
-                const Text(
+                Text(
                   'Email profissional',
                   style: TextStyle(
-                    color: AppColors.textLight,
+                    color: AppColors.creamBeige.withValues(alpha: 0.85),
                     fontSize: 12,
-                    fontWeight: FontWeight.w500,
                   ),
                 ),
                 const SizedBox(height: 8),
                 TextField(
-                  style: const TextStyle(color: AppColors.textLight, fontSize: 14),
-                  controller: TextEditingController(text: 'admin@catarinadomingos.pt'),
+                  readOnly: true,
                   decoration: InputDecoration(
+                    hintText: 'admin@catarinadomingos.pt',
+                    hintStyle: const TextStyle(
+                      color: AppColors.textLight,
+                      fontSize: 13,
+                    ),
                     filled: true,
-                    fillColor: AppColors.bgDark.withOpacity(0.6),
-                    prefixIcon: const Icon(Icons.email_outlined, color: AppColors.creamBeige, size: 18),
+                    fillColor: AppColors.bgDark.withValues(alpha: 0.65),
+                    prefixIcon: Icon(
+                      Icons.email_outlined,
+                      color: AppColors.creamBeige.withValues(alpha: 0.6),
+                      size: 18,
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(vertical: 14),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10),
-                      borderSide: BorderSide(color: AppColors.goldDark.withOpacity(0.4)),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                      borderSide: const BorderSide(color: AppColors.goldPrimary),
+                      borderSide: BorderSide(
+                        color: AppColors.creamBeige.withValues(alpha: 0.18),
+                      ),
                     ),
                   ),
                 ),
                 const SizedBox(height: 16),
 
-                // Campo Palavra-passe
-                const Text(
+                Text(
                   'Palavra-passe',
                   style: TextStyle(
-                    color: AppColors.textLight,
+                    color: AppColors.creamBeige.withValues(alpha: 0.85),
                     fontSize: 12,
-                    fontWeight: FontWeight.w500,
                   ),
                 ),
                 const SizedBox(height: 8),
                 TextField(
-                  obscureText: ocultarPassword,
-                  style: const TextStyle(color: AppColors.textLight, fontSize: 14),
-                  controller: TextEditingController(text: '••••••••••••••'),
+                  readOnly: true,
                   decoration: InputDecoration(
-                    filled: true,
-                    fillColor: AppColors.bgDark.withOpacity(0.6),
-                    prefixIcon: const Icon(Icons.lock_outline, color: AppColors.creamBeige, size: 18),
-                    suffixIcon: IconButton(
-                      icon: Icon(
-                        ocultarPassword ? Icons.visibility_outlined : Icons.visibility_off_outlined,
-                        color: AppColors.creamBeige,
-                        size: 18,
-                      ),
-                      onPressed: () {
-                        setState(() {
-                          ocultarPassword = !ocultarPassword;
-                        });
-                      },
+                    hintText: '••••••••••••••',
+                    hintStyle: const TextStyle(
+                      color: AppColors.textLight,
+                      fontSize: 13,
                     ),
+                    filled: true,
+                    fillColor: AppColors.bgDark.withValues(alpha: 0.65),
+                    prefixIcon: Icon(
+                      Icons.lock_outline,
+                      color: AppColors.creamBeige.withValues(alpha: 0.6),
+                      size: 18,
+                    ),
+                    suffixIcon: Icon(
+                      Icons.visibility_outlined,
+                      color: AppColors.creamBeige.withValues(alpha: 0.6),
+                      size: 18,
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(vertical: 14),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10),
-                      borderSide: BorderSide(color: AppColors.goldDark.withOpacity(0.4)),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                      borderSide: const BorderSide(color: AppColors.goldPrimary),
+                      borderSide: BorderSide(
+                        color: AppColors.creamBeige.withValues(alpha: 0.18),
+                      ),
                     ),
                   ),
                 ),
-                const SizedBox(height: 12),
+                const SizedBox(height: 14),
 
-                // Manter sessão iniciada + Recuperar palavra-passe
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Row(
                       children: [
-                        SizedBox(
-                          width: 24,
-                          height: 24,
-                          child: Checkbox(
-                            value: manterSessao,
-                            activeColor: AppColors.goldPrimary,
-                            checkColor: AppColors.bgDark,
-                            onChanged: (val) {
-                              setState(() {
-                                manterSessao = val ?? false;
-                              });
-                            },
+                        Container(
+                          width: 18,
+                          height: 18,
+                          decoration: BoxDecoration(
+                            color: AppColors.goldPrimary,
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                          child: const Icon(
+                            Icons.check,
+                            color: AppColors.bgDark,
+                            size: 14,
                           ),
                         ),
                         const SizedBox(width: 8),
-                        const Text(
+                        Text(
                           'Manter sessão iniciada',
-                          style: TextStyle(color: AppColors.creamBeige, fontSize: 12),
+                          style: TextStyle(
+                            color: AppColors.creamBeige.withValues(alpha: 0.75),
+                            fontSize: 11,
                           ),
+                        ),
                       ],
                     ),
                     const Text(
                       'Recuperar palavra-passe',
                       style: TextStyle(
                         color: AppColors.goldPrimary,
-                        fontSize: 12,
+                        fontSize: 11,
                         fontWeight: FontWeight.w500,
                       ),
                     ),
                   ],
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: 22),
 
-                // Botão "Aceder ao sistema" com Gradiente Dourado
-                GestureDetector(
-                  onTap: () {
-                    // Aqui pode navegar para o 3º ecrã (Dashboard do Sistema)
-                  },
-                  child: Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.symmetric(vertical: 15),
-                    decoration: BoxDecoration(
-                      gradient: AppColors.goldGradient,
-                      borderRadius: BorderRadius.circular(10),
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(vertical: 15),
+                  decoration: BoxDecoration(
+                    gradient: AppColors.goldGradient,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: const Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        'Aceder ao sistema',
+                        style: TextStyle(
+                          color: AppColors.bgDark,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14,
+                        ),
+                        ),
+                      SizedBox(width: 8),
+                      Icon(
+                        Icons.arrow_forward,
+                        color: AppColors.bgDark,
+                        size: 18,
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 12),
+
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.warning_amber_rounded,
+                      color: AppColors.creamBeige.withValues(alpha: 0.45),
+                      size: 14,
                     ),
-                    child: const Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
+                    const SizedBox(width: 6),
+                    Text(
+                      'Acesso demonstrativo — sem autenticação real',
+                      style: TextStyle(
+                        color: AppColors.creamBeige.withValues(alpha: 0.45),
+                        fontSize: 10,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 20),
+
+                Container(
+                  width: 38,
+                  height: 38,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: AppColors.surfaceDark.withValues(alpha: 0.6),
+                    border: Border.all(
+                      color: AppColors.goldPrimary.withValues(alpha: 0.35),
+                    ),
+                  ),
+                  child: const Icon(
+                    Icons.wb_sunny_outlined,
+                    color: AppColors.goldPrimary,
+                    size: 18,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Center(
+                  child: RichText(
+                    text: TextSpan(
+                      style: const TextStyle(fontSize: 11),
                       children: [
-                        Text(
-                          'Aceder ao sistema',
+                        TextSpan(
+                          text: 'Precisa de ajuda? ',
                           style: TextStyle(
-                            color: AppColors.bgDark,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 15,
+                            color: AppColors.creamBeige.withValues(alpha: 0.5),
                           ),
                         ),
-                        SizedBox(width: 8),
-                        Icon(Icons.arrow_forward, color: AppColors.bgDark, size: 18),
+                        const TextSpan(
+                          text: 'Contactar suporte técnico',
+                          style: TextStyle(
+                            color: AppColors.goldPrimary,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
                       ],
                     ),
                   ),
@@ -244,72 +370,66 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  // Widget auxiliar para desenhar cada cartão de perfil (Administrador, Colaborador, Cliente)
   Widget _buildRoleCard({
     required String titulo,
     required String subtitulo,
     required IconData icone,
+    required bool selecionado,
   }) {
-    final bool selecionado = perfilSelecionado == titulo;
-
-    return GestureDetector(
-      onTap: () {
-        setState(() {
-          perfilSelecionado = titulo;
-        });
-      },
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-        decoration: BoxDecoration(
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 13),
+      decoration: BoxDecoration(
+        color: selecionado
+            ? AppColors.surfaceDark.withValues(alpha: 0.85)
+            : AppColors.bgDark.withValues(alpha: 0.45),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(
           color: selecionado
-              ? AppColors.surfaceDark
-              : AppColors.bgDark.withOpacity(0.5),
-          borderRadius: BorderRadius.circular(10),
-          border: Border.all(
+              ? AppColors.goldPrimary
+              : AppColors.creamBeige.withValues(alpha: 0.15),
+          width: selecionado ? 1.4 : 1.0,
+        ),
+      ),
+      child: Row(
+        children: [
+          Icon(
+            icone,
             color: selecionado
                 ? AppColors.goldPrimary
-                : AppColors.creamBeige.withOpacity(0.15),
-            width: selecionado ? 1.5 : 1.0,
+                : AppColors.creamBeige.withValues(alpha: 0.6),
+            size: 20,
           ),
-        ),
-        child: Row(
-          children: [
-            Icon(
-              icone,
-              color: selecionado ? AppColors.goldPrimary : AppColors.creamBeige,
-              size: 20,
-            ),
-            const SizedBox(width: 14),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    titulo,
-                    style: const TextStyle(
-                      color: AppColors.textLight,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 13,
-                    ),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  titulo,
+                  style: const TextStyle(
+                    color: AppColors.textLight,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 13,
                   ),
-                  Text(
-                    subtitulo,
-                    style: const TextStyle(
-                      color: AppColors.creamBeige,
-                      fontSize: 11,
-                    ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  subtitulo,
+                  style: TextStyle(
+                    color: AppColors.creamBeige.withValues(alpha: 0.6),
+                    fontSize: 11,
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
-            if (selecionado)
-              const Icon(
-                Icons.check,
-                color: AppColors.goldPrimary,
-                size: 18,
-              ),
-          ],
-        ),
+          ),
+          if (selecionado)
+            const Icon(
+              Icons.check,
+              color: AppColors.goldPrimary,
+              size: 18,
+            ),
+        ],
       ),
     );
   }
