@@ -3,6 +3,7 @@ import 'screens/paginaprincipal.dart';
 import 'screens/login_screen.dart';
 import 'screens/homecliente.dart';
 import 'theme/app_colors.dart';
+import 'screens/pagina_principal.dart';
 
 void main() {
   runApp(const MyApp());
@@ -25,7 +26,7 @@ class MyApp extends StatelessWidget {
       routes: {
         '/': (context) => const PaginaPrincipal(),
         '/login': (context) => const LoginScreen(),
-        '/homecliente': (context) => const HomeCliente(),
+        '/pagina-principal': (context) => const PaginaPrincipal(),
       },
     );
   }
