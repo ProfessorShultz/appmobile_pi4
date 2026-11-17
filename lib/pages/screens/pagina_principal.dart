@@ -18,7 +18,7 @@ class PaginaPrincipal extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Cabeçalho / Logótipo
+                
                 Row(
                   children: [
                     Container(
