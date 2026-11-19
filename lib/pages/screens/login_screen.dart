@@ -1,8 +1,74 @@
 import 'package:material_ui/material_ui.dart';
+
+import '../services/auth_api.dart';
+import 'home_admin.dart';
 import '../theme/app_colors.dart';
 
-class LoginScreen extends StatelessWidget {
-  const LoginScreen({super.key});
+class LoginScreen extends StatefulWidget {
+  const LoginScreen({super.key, this.authApi});
+
+  final AuthApi? authApi;
+
+  @override
+  State<LoginScreen> createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
+  final _formKey = GlobalKey<FormState>();
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+  late final AuthApi _authApi = widget.authApi ?? AuthApi.instance;
+  bool _isSubmitting = false;
+  bool _obscurePassword = true;
+  String? _errorMessage;
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _submitLogin() async {
+    if (_isSubmitting || !(_formKey.currentState?.validate() ?? false)) {
+      return;
+    }
+
+    setState(() {
+      _isSubmitting = true;
+      _errorMessage = null;
+    });
+
+    try {
+      final session = await _authApi.login(
+        email: _emailController.text,
+        password: _passwordController.text,
+      );
+      if (!mounted) {
+        return;
+      }
+      if (session.user.profile != 'administrador') {
+        setState(() {
+          _errorMessage =
+              'A conta foi autenticada, mas este perfil ainda não tem um '
+              'ecrã disponível na aplicação.';
+        });
+        return;
+      }
+
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute<void>(builder: (_) => const HomeAdminPage()),
+      );
+    } on AuthApiException catch (error) {
+      if (mounted) {
+        setState(() => _errorMessage = error.message);
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isSubmitting = false);
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -10,12 +76,13 @@ class LoginScreen extends StatelessWidget {
       body: Container(
         width: double.infinity,
         height: double.infinity,
-        decoration: const BoxDecoration(
-          gradient: AppColors.backgroundGradient,
-        ),
+        decoration: const BoxDecoration(gradient: AppColors.backgroundGradient),
         child: SafeArea(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 18.0),
+            padding: const EdgeInsets.symmetric(
+              horizontal: 24.0,
+              vertical: 18.0,
+            ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -57,7 +124,9 @@ class LoginScreen extends StatelessWidget {
                             Text(
                               'LABORATÓRIO · PRÓTESE DENTÁRIA',
                               style: TextStyle(
-                                color: AppColors.creamBeige.withValues(alpha: 0.6),
+                                color: AppColors.creamBeige.withValues(
+                                  alpha: 0.6,
+                                ),
                                 fontSize: 8,
                               ),
                             ),
@@ -161,75 +230,120 @@ class LoginScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 22),
 
-                Text(
-                  'Email profissional',
-                  style: TextStyle(
-                    color: AppColors.creamBeige.withValues(alpha: 0.85),
-                    fontSize: 12,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                TextField(
-                  readOnly: true,
-                  decoration: InputDecoration(
-                    hintText: 'admin@catarinadomingos.pt',
-                    hintStyle: const TextStyle(
-                      color: AppColors.textLight,
-                      fontSize: 13,
-                    ),
-                    filled: true,
-                    fillColor: AppColors.bgDark.withValues(alpha: 0.65),
-                    prefixIcon: Icon(
-                      Icons.email_outlined,
-                      color: AppColors.creamBeige.withValues(alpha: 0.6),
-                      size: 18,
-                    ),
-                    contentPadding: const EdgeInsets.symmetric(vertical: 14),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                      borderSide: BorderSide(
-                        color: AppColors.creamBeige.withValues(alpha: 0.18),
+                Form(
+                  key: _formKey,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Email profissional',
+                        style: TextStyle(
+                          color: AppColors.creamBeige.withValues(alpha: 0.85),
+                          fontSize: 12,
+                        ),
                       ),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 16),
-
-                Text(
-                  'Palavra-passe',
-                  style: TextStyle(
-                    color: AppColors.creamBeige.withValues(alpha: 0.85),
-                    fontSize: 12,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                TextField(
-                  readOnly: true,
-                  decoration: InputDecoration(
-                    hintText: '••••••••••••••',
-                    hintStyle: const TextStyle(
-                      color: AppColors.textLight,
-                      fontSize: 13,
-                    ),
-                    filled: true,
-                    fillColor: AppColors.bgDark.withValues(alpha: 0.65),
-                    prefixIcon: Icon(
-                      Icons.lock_outline,
-                      color: AppColors.creamBeige.withValues(alpha: 0.6),
-                      size: 18,
-                    ),
-                    suffixIcon: Icon(
-                      Icons.visibility_outlined,
-                      color: AppColors.creamBeige.withValues(alpha: 0.6),
-                      size: 18,
-                    ),
-                    contentPadding: const EdgeInsets.symmetric(vertical: 14),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                      borderSide: BorderSide(
-                        color: AppColors.creamBeige.withValues(alpha: 0.18),
+                      const SizedBox(height: 8),
+                      TextFormField(
+                        key: const ValueKey('login-email'),
+                        controller: _emailController,
+                        keyboardType: TextInputType.emailAddress,
+                        textInputAction: TextInputAction.next,
+                        autofillHints: const [AutofillHints.username],
+                        validator: (value) {
+                          final email = value?.trim() ?? '';
+                          return email.contains('@')
+                              ? null
+                              : 'Introduza um e-mail válido.';
+                        },
+                        decoration: InputDecoration(
+                          hintText: 'nome@exemplo.pt',
+                          hintStyle: const TextStyle(
+                            color: AppColors.textLight,
+                            fontSize: 13,
+                          ),
+                          filled: true,
+                          fillColor: AppColors.bgDark.withValues(alpha: 0.65),
+                          prefixIcon: Icon(
+                            Icons.email_outlined,
+                            color: AppColors.creamBeige.withValues(alpha: 0.6),
+                            size: 18,
+                          ),
+                          contentPadding: const EdgeInsets.symmetric(
+                            vertical: 14,
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                            borderSide: BorderSide(
+                              color: AppColors.creamBeige.withValues(
+                                alpha: 0.18,
+                              ),
+                            ),
+                          ),
+                        ),
                       ),
-                    ),
+                      const SizedBox(height: 16),
+                      Text(
+                        'Palavra-passe',
+                        style: TextStyle(
+                          color: AppColors.creamBeige.withValues(alpha: 0.85),
+                          fontSize: 12,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      TextFormField(
+                        key: const ValueKey('login-password'),
+                        controller: _passwordController,
+                        obscureText: _obscurePassword,
+                        textInputAction: TextInputAction.done,
+                        autofillHints: const [AutofillHints.password],
+                        onFieldSubmitted: (_) => _submitLogin(),
+                        validator: (value) {
+                          return (value?.isNotEmpty ?? false)
+                              ? null
+                              : 'Introduza a palavra-passe.';
+                        },
+                        decoration: InputDecoration(
+                          hintText: 'Palavra-passe',
+                          hintStyle: const TextStyle(
+                            color: AppColors.textLight,
+                            fontSize: 13,
+                          ),
+                          filled: true,
+                          fillColor: AppColors.bgDark.withValues(alpha: 0.65),
+                          prefixIcon: Icon(
+                            Icons.lock_outline,
+                            color: AppColors.creamBeige.withValues(alpha: 0.6),
+                            size: 18,
+                          ),
+                          suffixIcon: IconButton(
+                            onPressed: () {
+                              setState(
+                                () => _obscurePassword = !_obscurePassword,
+                              );
+                            },
+                            icon: Icon(
+                              _obscurePassword
+                                  ? Icons.visibility_outlined
+                                  : Icons.visibility_off_outlined,
+                              color: AppColors.creamBeige.withValues(
+                                alpha: 0.6,
+                              ),
+                            ),
+                          ),
+                          contentPadding: const EdgeInsets.symmetric(
+                            vertical: 14,
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                            borderSide: BorderSide(
+                              color: AppColors.creamBeige.withValues(
+                                alpha: 0.18,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
                 const SizedBox(height: 14),
@@ -274,31 +388,66 @@ class LoginScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 22),
 
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.symmetric(vertical: 15),
-                  decoration: BoxDecoration(
-                    gradient: AppColors.goldGradient,
-                    borderRadius: BorderRadius.circular(10),
+                if (_errorMessage != null) ...[
+                  Text(
+                    _errorMessage!,
+                    style: const TextStyle(
+                      color: Colors.redAccent,
+                      fontSize: 12,
+                    ),
                   ),
-                  child: const Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        'Aceder ao sistema',
-                        style: TextStyle(
-                          color: AppColors.bgDark,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 14,
-                        ),
-                        ),
-                      SizedBox(width: 8),
-                      Icon(
-                        Icons.arrow_forward,
-                        color: AppColors.bgDark,
-                        size: 18,
-                      ),
-                    ],
+                  const SizedBox(height: 12),
+                ],
+
+                InkWell(
+                  onTap: _isSubmitting ? null : _submitLogin,
+                  borderRadius: BorderRadius.circular(10),
+                  child: Ink(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(vertical: 15),
+                    decoration: BoxDecoration(
+                      gradient: AppColors.goldGradient,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: _isSubmitting
+                          ? const [
+                              SizedBox(
+                                width: 18,
+                                height: 18,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: AppColors.bgDark,
+                                ),
+                              ),
+                              SizedBox(width: 8),
+                              Text(
+                                'A autenticar...',
+                                style: TextStyle(
+                                  color: AppColors.bgDark,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 14,
+                                ),
+                              ),
+                            ]
+                          : const [
+                              Text(
+                                'Aceder ao sistema',
+                                style: TextStyle(
+                                  color: AppColors.bgDark,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 14,
+                                ),
+                              ),
+                              SizedBox(width: 8),
+                              Icon(
+                                Icons.arrow_forward,
+                                color: AppColors.bgDark,
+                                size: 18,
+                              ),
+                            ],
+                    ),
                   ),
                 ),
                 const SizedBox(height: 12),
@@ -307,13 +456,13 @@ class LoginScreen extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Icon(
-                      Icons.warning_amber_rounded,
+                      Icons.verified_user_outlined,
                       color: AppColors.creamBeige.withValues(alpha: 0.45),
                       size: 14,
                     ),
                     const SizedBox(width: 6),
                     Text(
-                      'Acesso demonstrativo — sem autenticação real',
+                      'As credenciais são verificadas pelo servidor.',
                       style: TextStyle(
                         color: AppColors.creamBeige.withValues(alpha: 0.45),
                         fontSize: 10,
@@ -424,11 +573,7 @@ class LoginScreen extends StatelessWidget {
             ),
           ),
           if (selecionado)
-            const Icon(
-              Icons.check,
-              color: AppColors.goldPrimary,
-              size: 18,
-            ),
+            const Icon(Icons.check, color: AppColors.goldPrimary, size: 18),
         ],
       ),
     );
