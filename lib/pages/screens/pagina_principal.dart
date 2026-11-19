@@ -1,4 +1,5 @@
 import 'package:material_ui/material_ui.dart';
+
 import '../theme/app_colors.dart';
 
 class PaginaPrincipal extends StatelessWidget {
@@ -9,16 +10,16 @@ class PaginaPrincipal extends StatelessWidget {
     return Scaffold(
       body: Container(
         width: double.infinity,
-        decoration: const BoxDecoration(
-          gradient: AppColors.backgroundGradient,
-        ),
+        decoration: const BoxDecoration(gradient: AppColors.backgroundGradient),
         child: SafeArea(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 20.0),
+            padding: const EdgeInsets.symmetric(
+              horizontal: 24.0,
+              vertical: 20.0,
+            ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                
                 Row(
                   children: [
                     Container(
@@ -140,7 +141,9 @@ class PaginaPrincipal extends StatelessWidget {
                               shape: BoxShape.circle,
                               color: AppColors.bgDark,
                               border: Border.all(
-                                color: AppColors.goldPrimary.withValues(alpha: 0.3),
+                                color: AppColors.goldPrimary.withValues(
+                                  alpha: 0.3,
+                                ),
                               ),
                             ),
                             child: Container(
@@ -159,7 +162,9 @@ class PaginaPrincipal extends StatelessWidget {
                               Text(
                                 'ÁREA RESERVADA',
                                 style: TextStyle(
-                                  color: AppColors.creamBeige.withValues(alpha: 0.6),
+                                  color: AppColors.creamBeige.withValues(
+                                    alpha: 0.6,
+                                  ),
                                   fontSize: 9,
                                   letterSpacing: 1.2,
                                 ),
@@ -179,32 +184,35 @@ class PaginaPrincipal extends StatelessWidget {
                       ),
                       const SizedBox(height: 20),
 
-                      // Botão Visual "Iniciar sessão"
-                      Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.symmetric(vertical: 15),
-                        decoration: BoxDecoration(
-                          gradient: AppColors.goldGradient,
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: const Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              'Iniciar sessão',
-                              style: TextStyle(
-                                color: AppColors.bgDark,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 14,
+                      InkWell(
+                        onTap: () => Navigator.of(context).pushNamed('/login'),
+                        borderRadius: BorderRadius.circular(10),
+                        child: Ink(
+                          width: double.infinity,
+                          padding: const EdgeInsets.symmetric(vertical: 15),
+                          decoration: BoxDecoration(
+                            gradient: AppColors.goldGradient,
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: const Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                'Iniciar sessão',
+                                style: TextStyle(
+                                  color: AppColors.bgDark,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 14,
+                                ),
                               ),
-                            ),
-                            SizedBox(width: 8),
-                            Icon(
-                              Icons.arrow_forward,
-                              color: AppColors.bgDark,
-                              size: 18,
-                            ),
-                          ],
+                              SizedBox(width: 8),
+                              Icon(
+                                Icons.arrow_forward,
+                                color: AppColors.bgDark,
+                                size: 18,
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                       const SizedBox(height: 16),
@@ -224,7 +232,9 @@ class PaginaPrincipal extends StatelessWidget {
                           Text(
                             'Acesso seguro e reservado',
                             style: TextStyle(
-                              color: AppColors.creamBeige.withValues(alpha: 0.6),
+                              color: AppColors.creamBeige.withValues(
+                                alpha: 0.6,
+                              ),
                               fontSize: 11,
                             ),
                           ),
@@ -299,7 +309,9 @@ class PaginaPrincipal extends StatelessWidget {
                               shape: BoxShape.circle,
                               color: AppColors.bgDark.withValues(alpha: 0.8),
                               border: Border.all(
-                                color: AppColors.goldPrimary.withValues(alpha: 0.4),
+                                color: AppColors.goldPrimary.withValues(
+                                  alpha: 0.4,
+                                ),
                               ),
                             ),
                             child: const Icon(

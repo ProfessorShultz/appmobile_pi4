@@ -17,4 +17,15 @@ void main() {
 
     expect(find.text('RECEÇÃO DIGITAL'), findsOneWidget);
   });
+
+  testWidgets('Navigates to login when tapping the sign-in button', (
+    WidgetTester tester,
+  ) async {
+    await tester.pumpWidget(const MyApp());
+    await tester.ensureVisible(find.text('Iniciar sessão'));
+    await tester.tap(find.text('Iniciar sessão'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Bem-vindo de volta'), findsOneWidget);
+  });
 }
