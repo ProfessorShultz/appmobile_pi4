@@ -1,23 +1,16 @@
-import 'package:go_router/go_router.dart';
-import 'package:flutter_application_1/main.dart';
+import 'package:material_ui/material_ui.dart';
 
-//App route e configurações
+import 'screens/login_screen.dart';
+import 'screens/pagina_principal.dart';
 
-class AppRoutes{
-  
-  static const string splashPath = '/';
+class AppRoutes {
+  static const String homePath = '/';
+  static const String loginPath = '/login';
+  static const String mainPath = '/pagina-principal';
 
-
-
-
-  // Define the routes for the application
-  static final GoRouter router = GoRouter(
-    router:[
-      GoRoute(
-        path: splashPath,
-        builder: (context, state) => const SplashPage(),
-      )
-      GoRoute(path:)
-    ],
-  );
+  static final Map<String, WidgetBuilder> routes = {
+    homePath: (context) => const PaginaPrincipal(),
+    loginPath: (context) => const LoginScreen(),
+    mainPath: (context) => const PaginaPrincipal(),
+  };
 }

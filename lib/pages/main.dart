@@ -1,9 +1,7 @@
 import 'package:material_ui/material_ui.dart';
-import 'screens/paginaprincipal.dart';
-import 'screens/login_screen.dart';
-import 'screens/homecliente.dart';
+
+import 'app_route.dart';
 import 'theme/app_colors.dart';
-import 'screens/pagina_principal.dart';
 
 void main() {
   runApp(const MyApp());
@@ -22,12 +20,8 @@ class MyApp extends StatelessWidget {
         scaffoldBackgroundColor: AppColors.bgDark,
         fontFamily: 'Roboto',
       ),
-      initialRoute: '/',
-      routes: {
-        '/': (context) => const PaginaPrincipal(),
-        '/login': (context) => const LoginScreen(),
-        '/pagina-principal': (context) => const PaginaPrincipal(),
-      },
+      initialRoute: AppRoutes.homePath,
+      routes: AppRoutes.routes,
     );
   }
 }

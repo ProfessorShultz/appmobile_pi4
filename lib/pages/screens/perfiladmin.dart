@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 class PerfilAdminPage extends StatefulWidget {
   const PerfilAdminPage({super.key});
@@ -101,11 +101,16 @@ class _PerfilAdminPageState extends State<PerfilAdminPage> {
                 ),
                 const Spacer(),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 5,
+                  ),
                   decoration: BoxDecoration(
-                    color: goldPrimary.withOpacity(0.1),
+                    color: goldPrimary.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: goldPrimary.withOpacity(0.5)),
+                    border: Border.all(
+                      color: goldPrimary.withValues(alpha: 0.5),
+                    ),
                   ),
                   child: const Text(
                     'ADMINISTRAD',
@@ -216,7 +221,7 @@ class _PerfilAdminPageState extends State<PerfilAdminPage> {
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               border: Border.all(color: goldPrimary, width: 1.5),
-              color: goldPrimary.withOpacity(0.1),
+              color: goldPrimary.withValues(alpha: 0.1),
             ),
             child: const Center(
               child: Text(
@@ -233,9 +238,9 @@ class _PerfilAdminPageState extends State<PerfilAdminPage> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
             decoration: BoxDecoration(
-              color: goldPrimary.withOpacity(0.1),
+              color: goldPrimary.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: goldPrimary.withOpacity(0.4)),
+              border: Border.all(color: goldPrimary.withValues(alpha: 0.4)),
             ),
             child: const Text(
               'ADMINISTRADORA',
@@ -334,10 +339,7 @@ class _PerfilAdminPageState extends State<PerfilAdminPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          label,
-          style: const TextStyle(color: textGrey, fontSize: 11),
-        ),
+        Text(label, style: const TextStyle(color: textGrey, fontSize: 11)),
         const SizedBox(height: 6),
         Container(
           width: double.infinity,
@@ -431,9 +433,9 @@ class _PerfilAdminPageState extends State<PerfilAdminPage> {
             width: 22,
             height: 22,
             decoration: BoxDecoration(
-              color: successGreen.withOpacity(0.12),
+              color: successGreen.withValues(alpha: 0.12),
               shape: BoxShape.circle,
-              border: Border.all(color: successGreen.withOpacity(0.4)),
+              border: Border.all(color: successGreen.withValues(alpha: 0.4)),
             ),
             child: const Icon(Icons.check, color: successGreen, size: 14),
           ),
@@ -477,7 +479,12 @@ class _PerfilAdminPageState extends State<PerfilAdminPage> {
     );
   }
 
-  Widget _buildNavItem(int index, IconData icon, String label, VoidCallback onTap) {
+  Widget _buildNavItem(
+    int index,
+    IconData icon,
+    String label,
+    VoidCallback onTap,
+  ) {
     final bool isSelected = _selectedIndex == index;
     return GestureDetector(
       onTap: onTap,
@@ -485,11 +492,7 @@ class _PerfilAdminPageState extends State<PerfilAdminPage> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
-            icon,
-            color: isSelected ? goldPrimary : textGrey,
-            size: 22,
-          ),
+          Icon(icon, color: isSelected ? goldPrimary : textGrey, size: 22),
           const SizedBox(height: 4),
           Text(
             label,
@@ -535,10 +538,7 @@ class _PerfilAdminPageState extends State<PerfilAdminPage> {
             child: const Icon(Icons.add, color: Colors.black, size: 22),
           ),
           const SizedBox(height: 4),
-          const Text(
-            'Criar',
-            style: TextStyle(color: textGrey, fontSize: 10),
-          ),
+          const Text('Criar', style: TextStyle(color: textGrey, fontSize: 10)),
         ],
       ),
     );
