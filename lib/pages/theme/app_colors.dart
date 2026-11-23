@@ -23,6 +23,24 @@ class AppColors {
   static const Color cyanAccent = Color(0xFF1EC8C8);
   static const Color greenOnline = Color(0xFF4CAF50);
 
+  static const Color portalBgDark = Color(0xFF0A0A0A);
+  static const Color portalSurfaceDark = Color(0xFF141414);
+  static const Color portalCardDark = Color(0xFF1A1710);
+  static const Color portalBorderSubtle = Color(0xFF2B2619);
+  static const Color portalGold = Color(0xFFD4AF37);
+  static const Color portalCyan = Color(0xFF00BCD4);
+  static const Color portalTextMuted = Color(0xFF9E9E9E);
+  static const Color portalRoleBackground = Color(0xFF062A30);
+  static const Color portalAvatarBackground = Color(0xFF231D0E);
+  static const Color portalUpdateBackground = Color(0xFF1A1D21);
+  static const Color portalDescriptionText = Color(0xFFBDBDBD);
+  static const Color portalTimestampText = Color(0xFF8E8E8E);
+  static const Color portalTextPrimary = Color(0xFFFFFFFF);
+  static const Color portalTextOnAccent = Color(0xFF000000);
+  static const Color portalBorderLight = Color(0x1FFFFFFF);
+  static const Color portalBorderFaint = Color(0x1AFFFFFF);
+  static const Color portalTextSecondary = Color(0xB3FFFFFF);
+
   // Gradiente Dourado (para botões e destaques)
   static const LinearGradient goldGradient = LinearGradient(
     colors: [goldDark, goldPrimary, creamBeige],

@@ -1,7 +1,7 @@
 import 'package:material_ui/material_ui.dart';
 
+import '../route_names.dart';
 import '../services/auth_api.dart';
-import 'home_admin.dart';
 import '../theme/app_colors.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -20,6 +20,7 @@ class _LoginScreenState extends State<LoginScreen> {
   late final AuthApi _authApi = widget.authApi ?? AuthApi.instance;
   bool _isSubmitting = false;
   bool _obscurePassword = true;
+  String _selectedProfile = 'administrador';
   String? _errorMessage;
 
   @override
@@ -47,18 +48,26 @@ class _LoginScreenState extends State<LoginScreen> {
       if (!mounted) {
         return;
       }
-      if (session.user.profile != 'administrador') {
+      if (session.user.profile != _selectedProfile) {
+        setState(() {
+          _errorMessage =
+              'A conta autenticada tem o perfil '
+              '"${session.user.profile ?? 'não definido'}", diferente do '
+              'perfil selecionado.';
+        });
+        return;
+      }
+      if (session.user.profile == 'administrador') {
+        Navigator.of(context).pushReplacementNamed(AppRouteNames.adminPath);
+      } else if (session.user.profile == 'cliente') {
+        Navigator.of(context).pushReplacementNamed(AppRouteNames.clientPath);
+      } else {
         setState(() {
           _errorMessage =
               'A conta foi autenticada, mas este perfil ainda não tem um '
               'ecrã disponível na aplicação.';
         });
-        return;
       }
-
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute<void>(builder: (_) => const HomeAdminPage()),
-      );
     } on AuthApiException catch (error) {
       if (mounted) {
         setState(() => _errorMessage = error.message);
@@ -212,21 +221,24 @@ class _LoginScreenState extends State<LoginScreen> {
                   titulo: 'Administrador',
                   subtitulo: 'Acesso total',
                   icone: Icons.wb_sunny_outlined,
-                  selecionado: true,
+                  selecionado: _selectedProfile == 'administrador',
+                  onTap: () => _selectProfile('administrador'),
                 ),
                 const SizedBox(height: 10),
                 _buildRoleCard(
                   titulo: 'Colaborador',
                   subtitulo: 'Produção',
                   icone: Icons.view_in_ar_outlined,
-                  selecionado: false,
+                  selecionado: _selectedProfile == 'colaborador',
+                  onTap: () => _selectProfile('colaborador'),
                 ),
                 const SizedBox(height: 10),
                 _buildRoleCard(
                   titulo: 'Cliente',
                   subtitulo: 'Clínica / dentista',
                   icone: Icons.person_outline,
-                  selecionado: false,
+                  selecionado: _selectedProfile == 'cliente',
+                  onTap: () => _selectProfile('cliente'),
                 ),
                 const SizedBox(height: 22),
 
@@ -519,62 +531,74 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
+  void _selectProfile(String profile) {
+    setState(() {
+      _selectedProfile = profile;
+      _errorMessage = null;
+    });
+  }
+
   Widget _buildRoleCard({
     required String titulo,
     required String subtitulo,
     required IconData icone,
     required bool selecionado,
+    required VoidCallback onTap,
   }) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 13),
-      decoration: BoxDecoration(
-        color: selecionado
-            ? AppColors.surfaceDark.withValues(alpha: 0.85)
-            : AppColors.bgDark.withValues(alpha: 0.45),
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(10),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 13),
+        decoration: BoxDecoration(
           color: selecionado
-              ? AppColors.goldPrimary
-              : AppColors.creamBeige.withValues(alpha: 0.15),
-          width: selecionado ? 1.4 : 1.0,
-        ),
-      ),
-      child: Row(
-        children: [
-          Icon(
-            icone,
+              ? AppColors.surfaceDark.withValues(alpha: 0.85)
+              : AppColors.bgDark.withValues(alpha: 0.45),
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(
             color: selecionado
                 ? AppColors.goldPrimary
-                : AppColors.creamBeige.withValues(alpha: 0.6),
-            size: 20,
+                : AppColors.creamBeige.withValues(alpha: 0.15),
+            width: selecionado ? 1.4 : 1.0,
           ),
-          const SizedBox(width: 14),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  titulo,
-                  style: const TextStyle(
-                    color: AppColors.textLight,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 13,
-                  ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  subtitulo,
-                  style: TextStyle(
-                    color: AppColors.creamBeige.withValues(alpha: 0.6),
-                    fontSize: 11,
-                  ),
-                ),
-              ],
+        ),
+        child: Row(
+          children: [
+            Icon(
+              icone,
+              color: selecionado
+                  ? AppColors.goldPrimary
+                  : AppColors.creamBeige.withValues(alpha: 0.6),
+              size: 20,
             ),
-          ),
-          if (selecionado)
-            const Icon(Icons.check, color: AppColors.goldPrimary, size: 18),
-        ],
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    titulo,
+                    style: const TextStyle(
+                      color: AppColors.textLight,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 13,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    subtitulo,
+                    style: TextStyle(
+                      color: AppColors.creamBeige.withValues(alpha: 0.6),
+                      fontSize: 11,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            if (selecionado)
+              const Icon(Icons.check, color: AppColors.goldPrimary, size: 18),
+          ],
+        ),
       ),
     );
   }
