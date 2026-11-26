@@ -4,4 +4,5 @@ class AppRouteNames {
   static const String mainPath = '/pagina-principal';
   static const String adminPath = '/admin';
   static const String clientPath = '/cliente';
+  static const String clientNewOrderPath = '/cliente/novo-pedido';
 }

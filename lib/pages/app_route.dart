@@ -1,5 +1,6 @@
 import 'package:material_ui/material_ui.dart';
 
+import 'cliente/criar_nono.dart';
 import 'cliente/pagina_principal.dart';
 import 'route_names.dart';
 import 'screens/home_admin.dart';
@@ -12,12 +13,14 @@ class AppRoutes {
   static const String mainPath = AppRouteNames.mainPath;
   static const String adminPath = AppRouteNames.adminPath;
   static const String clientPath = AppRouteNames.clientPath;
+  static const String clientNewOrderPath = AppRouteNames.clientNewOrderPath;
 
   static final Map<String, WidgetBuilder> routes = {
     homePath: (context) => const PaginaPrincipal(),
     loginPath: (context) => const LoginScreen(),
     mainPath: (context) => const PaginaPrincipal(),
     adminPath: (context) => const HomeAdminPage(),
-    clientPath: (context) => const PortalClinicaPage(),
+    clientPath: (context) => const PaginaClinicaPage(),
+    clientNewOrderPath: (context) => const CriarNovoClienteScreen(),
   };
 }

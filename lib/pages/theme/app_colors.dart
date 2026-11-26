@@ -22,6 +22,13 @@ class AppColors {
   ); // #E9DFD5 - Texto claro principal
   static const Color cyanAccent = Color(0xFF1EC8C8);
   static const Color greenOnline = Color(0xFF4CAF50);
+  static const Color background = bgDark;
+  static const Color surface = surfaceDark;
+  static const Color textPrimary = textLight;
+  static const Color textSecondary = creamBeige;
+  static const Color border = Color(0xFF3B3D3C);
+  static const Color goldLight = creamBeige;
+  static const Color cyanPrimary = cyanAccent;
 
   static const Color portalBgDark = Color(0xFF0A0A0A);
   static const Color portalSurfaceDark = Color(0xFF141414);

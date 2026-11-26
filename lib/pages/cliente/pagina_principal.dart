@@ -1,353 +1,534 @@
 import 'package:flutter/material.dart';
 
+import '../route_names.dart';
 import '../theme/app_colors.dart';
+import '../services/auth_api.dart';
 
-class PortalClinicaPage extends StatefulWidget {
-  const PortalClinicaPage({super.key});
 
-  @override
-  State<PortalClinicaPage> createState() => _PortalClinicaPageState();
+// 1. Modelos de dados alinhados com os widgets da página
+class PedidoAtivo {
+  final String id;
+  final String codigoTipo;
+  final String paciente;
+  final String trabalho;
+  final String estado;
+  final IconData icon;
+
+  const PedidoAtivo({
+    required this.id,
+    required this.codigoTipo,
+    required this.paciente,
+    required this.trabalho,
+    required this.estado,
+    required this.icon,
+  });
 }
 
-class _PortalClinicaPageState extends State<PortalClinicaPage> {
+class AtualizacaoRecente {
+  final String titulo;
+  final String descricao;
+  final String tempo;
+  final IconData icon;
+  final bool naoLida;
+
+  const AtualizacaoRecente({
+    required this.titulo,
+    required this.descricao,
+    required this.tempo,
+    required this.icon,
+    this.naoLida = false,
+  });
+}
+
+// 2. Serviço da base de dados (substitua o corpo pelas suas chamadas reais)
+class ClinicaRepository {
+  Future<List<PedidoAtivo>> obterPedidosAtivos() async {
+    // TODO: substituir pela consulta real à BD (ex.: Supabase, Firestore, HTTP GET ou SQLite)
+    await Future.delayed(const Duration(milliseconds: 250));
+    return const [
+      PedidoAtivo(
+        id: '1',
+        codigoTipo: '#PT-2026-184 • Digital',
+        paciente: 'Mariana Lopes',
+        trabalho: 'Coroa Dissilicato',
+        estado: 'EM PROCESSAMENTO',
+        icon: Icons.description_outlined,
+      ),
+      PedidoAtivo(
+        id: '2',
+        codigoTipo: '#PT-2026-179 • Físico',
+        paciente: 'João Ferreira',
+        trabalho: 'Prótese Acrílica',
+        estado: 'EM PROCESSAMENTO',
+        icon: Icons.view_in_ar_outlined,
+      ),
+    ];
+  }
+
+  Future<List<AtualizacaoRecente>> obterAtualizacoesRecentes() async {
+    // TODO: substituir pela consulta real à BD
+    await Future.delayed(const Duration(milliseconds: 250));
+    return const [
+      AtualizacaoRecente(
+        titulo: 'Novas fotografias de prova',
+        descricao: 'O laboratório partilhou conteúdo no pedido #PT-2026-184.',
+        tempo: 'Há 12 min',
+        icon: Icons.camera_alt_outlined,
+        naoLida: true,
+      ),
+      AtualizacaoRecente(
+        titulo: 'Nota do laboratório',
+        descricao: '“Solicitamos validação da tonalidade antes de avançar.”',
+        tempo: 'Ontem, 16:38',
+        icon: Icons.chat_bubble_outline,
+        naoLida: true,
+      ),
+    ];
+  }
+}
+
+class PaginaClinicaPage extends StatefulWidget {
+  const PaginaClinicaPage({super.key});
+
+  @override
+  State<PaginaClinicaPage> createState() => _PaginaClinicaPageState();
+}
+
+class _PaginaClinicaPageState extends State<PaginaClinicaPage> {
+  final ClinicaRepository _repository = ClinicaRepository();
+
   int _currentIndex = 0;
+  bool _isLoading = true;
+  String? _erroMensagem;
+
+  List<PedidoAtivo> _pedidosAtivos = [];
+  List<AtualizacaoRecente> _atualizacoes = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _carregarDados();
+  }
+
+  Future<void> _carregarDados() async {
+    setState(() {
+      _isLoading = true;
+      _erroMensagem = null;
+    });
+
+    try {
+      final resultados = await Future.wait([
+        _repository.obterPedidosAtivos(),
+        _repository.obterAtualizacoesRecentes(),
+      ]);
+
+      if (!mounted) return;
+      setState(() {
+        _pedidosAtivos = resultados[0] as List<PedidoAtivo>;
+        _atualizacoes = resultados[1] as List<AtualizacaoRecente>;
+        _isLoading = false;
+      });
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _erroMensagem = 'Não foi possível carregar os dados da base de dados.';
+        _isLoading = false;
+      });
+    }
+  }
+
+  int get _totalEmProcessamento => _pedidosAtivos
+      .where((p) => p.estado.toUpperCase() == 'EM PROCESSAMENTO')
+      .length;
+
+  Future<void> _abrirNovoPedido() async {
+    await Navigator.of(context).pushNamed(AppRouteNames.clientNewOrderPath);
+    if (mounted) {
+      await _carregarDados();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.portalBgDark,
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Cabeçalho académico / contexto
-              const Center(
-                child: Text(
-                  'ESTGV • TECNOLOGIAS E DESIGN DE MULTIMÉDIA — PI4',
-                  style: TextStyle(
-                    color: AppColors.portalTextMuted,
-                    fontSize: 10,
-                    letterSpacing: 1.2,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 14),
-
-              // Top bar: Logo + Badge role + Sino + Logout
-              Row(
-                children: [
-                  Container(
-                    width: 40,
-                    height: 40,
-                    decoration: BoxDecoration(
-                      color: AppColors.portalSurfaceDark,
-                      borderRadius: BorderRadius.circular(10),
-                      border: Border.all(color: AppColors.portalBorderSubtle),
-                    ),
-                    child: const Icon(
-                      Icons.medical_services_outlined,
-                      color: AppColors.portalGold,
-                    ),
-                  ),
-                  const Spacer(),
-                  Flexible(
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                      decoration: BoxDecoration(
-                        color: AppColors.portalRoleBackground,
-                        borderRadius: BorderRadius.circular(20),
-                        border: Border.all(
-                          color: AppColors.portalCyan.withValues(alpha: 0.4),
-                        ),
-                      ),
-                      child: const Text(
-                        'MÉDICA DENTISTA',
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          color: AppColors.portalCyan,
-                          fontSize: 11,
-                          fontWeight: FontWeight.w700,
-                          letterSpacing: 0.6,
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  _IconActionButton(
-                    icon: Icons.notifications_none,
-                    showDot: true,
-                    onTap: () {
-                      // TODO: navegar para notificações
-                    },
-                  ),
-                  const SizedBox(width: 8),
-                  _IconActionButton(
-                    icon: Icons.logout,
-                    onTap: () {
-                      // TODO: logout / voltar para login_screen.dart
-                    },
-                  ),
-                ],
-              ),
-              const SizedBox(height: 14),
-
-              // Barra de sessão autorizada
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                decoration: BoxDecoration(
-                  color: AppColors.portalSurfaceDark,
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: AppColors.portalBorderFaint),
-                ),
-                child: const Row(
-                  children: [
-                    Icon(
-                      Icons.lock_outline,
-                      size: 15,
+        child: RefreshIndicator(
+          onRefresh: _carregarDados,
+          color: AppColors.portalGold,
+          backgroundColor: AppColors.portalSurfaceDark,
+          child: SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Cabeçalho académico / contexto
+                const Center(
+                  child: Text(
+                    'ESTGV • TECNOLOGIAS E DESIGN DE MULTIMÉDIA — PI4',
+                    style: TextStyle(
                       color: AppColors.portalTextMuted,
+                      fontSize: 10,
+                      letterSpacing: 1.2,
                     ),
-                    SizedBox(width: 8),
-                    Text(
-                      'Sessão autorizada',
-                      style: TextStyle(
-                        color: AppColors.portalTextMuted,
-                        fontSize: 12,
+                  ),
+                ),
+                const SizedBox(height: 14),
+
+                // Top bar: Logo + Badge role + Sino + Logout
+                Row(
+                  children: [
+                    Container(
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        color: AppColors.portalSurfaceDark,
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(color: AppColors.portalBorderSubtle),
+                      ),
+                      child: const Icon(
+                        Icons.medical_services_outlined,
+                        color: AppColors.portalGold,
                       ),
                     ),
-                    Spacer(),
-                    Text(
-                      'Dra. Inês Matos',
-                      style: TextStyle(
-                        color: AppColors.portalTextPrimary,
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
+                    const Spacer(),
+                    Flexible(
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 6,
+                        ),
+                        decoration: BoxDecoration(
+                          color: AppColors.portalRoleBackground,
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(
+                            color: AppColors.portalCyan.withValues(alpha: 0.4),
+                          ),
+                        ),
+                        child: const Text(
+                          'MÉDICA DENTISTA',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            color: AppColors.portalCyan,
+                            fontSize: 11,
+                            fontWeight: FontWeight.w700,
+                            letterSpacing: 0.6,
+                          ),
+                        ),
                       ),
+                    ),
+                    const SizedBox(width: 8),
+                    _IconActionButton(
+                      icon: Icons.notifications_none,
+                      showDot: _atualizacoes.any((a) => a.naoLida),
+                      onTap: () {
+                        // TODO: navegar para notificações
+                      },
+                    ),
+                    const SizedBox(width: 8),
+                    _IconActionButton(
+                      icon: Icons.logout,
+                      onTap: () {
+                        // TODO: logout / voltar para login_screen.dart
+                      },
                     ),
                   ],
                 ),
-              ),
-              const SizedBox(height: 22),
+                const SizedBox(height: 14),
 
-              // Saudação + Avatar iniciais
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  const Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'PORTAL DA CLÍNICA',
-                          style: TextStyle(
-                            color: AppColors.portalGold,
-                            fontSize: 11,
-                            fontWeight: FontWeight.w700,
-                            letterSpacing: 1.4,
-                          ),
-                        ),
-                        SizedBox(height: 4),
-                        Text(
-                          'Bom dia, Dra. Inês',
-                          style: TextStyle(
-                            color: AppColors.portalTextPrimary,
-                            fontSize: 28,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        SizedBox(height: 4),
-                        Text(
-                          'Acompanhe a produção sem telefonemas.',
-                          style: TextStyle(
-                            color: AppColors.portalTextMuted,
-                            fontSize: 13,
-                          ),
-                        ),
-                      ],
-                    ),
+                // Barra de sessão autorizada
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 10,
                   ),
-                  const SizedBox(width: 12),
-                  Container(
-                    width: 48,
-                    height: 48,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: AppColors.portalAvatarBackground,
-                      border: Border.all(
-                        color: AppColors.portalGold.withValues(alpha: 0.5),
-                      ),
-                    ),
-                    alignment: Alignment.center,
-                    child: const Text(
-                      'IM',
-                      style: TextStyle(
-                        color: AppColors.portalGold,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 15,
-                      ),
-                    ),
+                  decoration: BoxDecoration(
+                    color: AppColors.portalSurfaceDark,
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: AppColors.portalBorderFaint),
                   ),
-                ],
-              ),
-              const SizedBox(height: 20),
-
-              // Card principal: Pedidos em processamento + Botão Novo pedido
-              Container(
-                padding: const EdgeInsets.all(18),
-                decoration: BoxDecoration(
-                  color: AppColors.portalCardDark,
-                  borderRadius: BorderRadius.circular(18),
-                  border: Border.all(color: AppColors.portalBorderSubtle),
+                  child: const Row(
+                    children: [
+                      Icon(
+                        Icons.lock_outline,
+                        size: 15,
+                        color: AppColors.portalTextMuted,
+                      ),
+                      SizedBox(width: 8),
+                      Text(
+                        'Sessão autorizada',
+                        style: TextStyle(
+                          color: AppColors.portalTextMuted,
+                          fontSize: 12,
+                        ),
+                      ),
+                      Spacer(),
+                      Text(
+                        'Dra. Inês Matos',
+                        style: TextStyle(
+                          color: AppColors.portalTextPrimary,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-                child: Row(
+                const SizedBox(height: 22),
+
+                // Saudação + Avatar iniciais
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     const Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'PEDIDOS EM PROCESSAMENTO',
+                            'PORTAL DA CLÍNICA',
                             style: TextStyle(
                               color: AppColors.portalGold,
                               fontSize: 11,
                               fontWeight: FontWeight.w700,
-                              letterSpacing: 1.1,
+                              letterSpacing: 1.4,
                             ),
                           ),
-                          SizedBox(height: 8),
+                          SizedBox(height: 4),
                           Text(
-                            '2',
+                            'Bom dia, Dra. Inês',
                             style: TextStyle(
-                              color: AppColors.portalGold,
-                              fontSize: 42,
+                              color: AppColors.portalTextPrimary,
+                              fontSize: 28,
                               fontWeight: FontWeight.bold,
-                              height: 1.0,
                             ),
                           ),
-                          SizedBox(height: 8),
+                          SizedBox(height: 4),
                           Text(
-                            'Modo simplificado para acompanhamento',
+                            'Acompanhe a produção sem telefonemas.',
                             style: TextStyle(
                               color: AppColors.portalTextMuted,
-                              fontSize: 12,
+                              fontSize: 13,
                             ),
                           ),
                         ],
                       ),
                     ),
-                    const SizedBox(width: 14),
-                    InkWell(
-                      onTap: () {
-                        // TODO: navegar para criartrabalho.dart
-                      },
-                      borderRadius: BorderRadius.circular(16),
-                      child: Container(
-                        width: 104,
-                        height: 104,
-                        decoration: BoxDecoration(
-                          color: AppColors.portalGold,
-                          borderRadius: BorderRadius.circular(16),
+                    const SizedBox(width: 12),
+                    Container(
+                      width: 48,
+                      height: 48,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: AppColors.portalAvatarBackground,
+                        border: Border.all(
+                          color: AppColors.portalGold.withValues(alpha: 0.5),
                         ),
-                        child: const Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
+                      ),
+                      alignment: Alignment.center,
+                      child: const Text(
+                        'IM',
+                        style: TextStyle(
+                          color: AppColors.portalGold,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 15,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 20),
+
+                // Card principal: Pedidos em processamento + Botão Novo pedido
+                Container(
+                  padding: const EdgeInsets.all(18),
+                  decoration: BoxDecoration(
+                    color: AppColors.portalCardDark,
+                    borderRadius: BorderRadius.circular(18),
+                    border: Border.all(color: AppColors.portalBorderSubtle),
+                  ),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Icon(
-                              Icons.add,
-                              color: AppColors.portalTextOnAccent,
-                              size: 26,
-                            ),
-                            SizedBox(height: 6),
-                            Text(
-                              'Novo pedido',
+                            const Text(
+                              'PEDIDOS EM PROCESSAMENTO',
                               style: TextStyle(
-                                color: AppColors.portalTextOnAccent,
+                                color: AppColors.portalGold,
+                                fontSize: 11,
                                 fontWeight: FontWeight.w700,
+                                letterSpacing: 1.1,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              _isLoading ? '...' : '$_totalEmProcessamento',
+                              style: const TextStyle(
+                                color: AppColors.portalGold,
+                                fontSize: 42,
+                                fontWeight: FontWeight.bold,
+                                height: 1.0,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            const Text(
+                              'Modo simplificado para acompanhamento',
+                              style: TextStyle(
+                                color: AppColors.portalTextMuted,
                                 fontSize: 12,
                               ),
                             ),
                           ],
                         ),
                       ),
+                      const SizedBox(width: 14),
+                      InkWell(
+                        onTap: _abrirNovoPedido,
+                        borderRadius: BorderRadius.circular(16),
+                        child: Container(
+                          width: 104,
+                          height: 104,
+                          decoration: BoxDecoration(
+                            color: AppColors.portalGold,
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          child: const Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.add,
+                                color: AppColors.portalTextOnAccent,
+                                size: 26,
+                              ),
+                              SizedBox(height: 6),
+                              Text(
+                                'Novo pedido',
+                                style: TextStyle(
+                                  color: AppColors.portalTextOnAccent,
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 24),
+
+                // Secção: Pedidos ativos
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      'Pedidos ativos',
+                      style: TextStyle(
+                        color: AppColors.portalTextPrimary,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        setState(
+                          () => _currentIndex = 2,
+                        ); // Vai para aba Pedidos
+                      },
+                      child: const Text(
+                        'Ver todos',
+                        style: TextStyle(
+                          color: AppColors.portalGold,
+                          fontSize: 13,
+                        ),
+                      ),
                     ),
                   ],
                 ),
-              ),
-              const SizedBox(height: 24),
+                const SizedBox(height: 8),
 
-              // Secção: Pedidos ativos
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text(
-                    'Pedidos ativos',
-                    style: TextStyle(
-                      color: AppColors.portalTextPrimary,
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  TextButton(
-                    onPressed: () {
-                      setState(() => _currentIndex = 2); // Vai para aba Pedidos
-                    },
-                    child: const Text(
-                      'Ver todos',
-                      style: TextStyle(
+                if (_isLoading)
+                  const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 20),
+                    child: Center(
+                      child: CircularProgressIndicator(
                         color: AppColors.portalGold,
-                        fontSize: 13,
                       ),
                     ),
+                  )
+                else if (_erroMensagem != null)
+                  _ErroCard(mensagem: _erroMensagem!, onRetry: _carregarDados)
+                else if (_pedidosAtivos.isEmpty)
+                  const Text(
+                    'Sem pedidos ativos de momento.',
+                    style: TextStyle(color: AppColors.portalTextMuted),
+                  )
+                else
+                  ...List.generate(_pedidosAtivos.length, (index) {
+                    final pedido = _pedidosAtivos[index];
+                    return Padding(
+                      padding: EdgeInsets.only(
+                        bottom: index < _pedidosAtivos.length - 1 ? 12 : 0,
+                      ),
+                      child: _PedidoAtivoCard(
+                        codigoTipo: pedido.codigoTipo,
+                        paciente: pedido.paciente,
+                        trabalho: pedido.trabalho,
+                        estado: pedido.estado,
+                        icon: pedido.icon,
+                        onTap: () {
+                          // TODO: abrir detalhe do pedido pedido.id
+                        },
+                      ),
+                    );
+                  }),
+
+                const SizedBox(height: 24),
+
+                // Secção: Atualizações recentes
+                const Text(
+                  'Atualizações recentes',
+                  style: TextStyle(
+                    color: AppColors.portalTextPrimary,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
                   ),
-                ],
-              ),
-              const SizedBox(height: 8),
-
-              const _PedidoAtivoCard(
-                codigoTipo: '#PT-2026-184 • Digital',
-                paciente: 'Mariana Lopes',
-                trabalho: 'Coroa Dissilicato',
-                estado: 'EM PROCESSAMENTO',
-                icon: Icons.description_outlined,
-              ),
-              const SizedBox(height: 12),
-              const _PedidoAtivoCard(
-                codigoTipo: '#PT-2026-179 • Físico',
-                paciente: 'João Ferreira',
-                trabalho: 'Prótese Acrílica',
-                estado: 'EM PROCESSAMENTO',
-                icon: Icons.view_in_ar_outlined,
-              ),
-              const SizedBox(height: 24),
-
-              // Secção: Atualizações recentes
-              const Text(
-                'Atualizações recentes',
-                style: TextStyle(
-                  color: AppColors.portalTextPrimary,
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
                 ),
-              ),
-              const SizedBox(height: 12),
+                const SizedBox(height: 12),
 
-              const _AtualizacaoItem(
-                icon: Icons.camera_alt_outlined,
-                titulo: 'Novas fotografias de prova',
-                descricao: 'O laboratório partilhou conteúdo no pedido #PT-2026-184.',
-                tempo: 'Há 12 min',
-                naoLida: true,
-              ),
-              const Divider(color: AppColors.portalBorderLight, height: 24),
-              const _AtualizacaoItem(
-                icon: Icons.chat_bubble_outline,
-                titulo: 'Nota do laboratório',
-                descricao: '“Solicitamos validação da tonalidade antes de avançar.”',
-                tempo: 'Ontem, 16:38',
-                naoLida: true,
-              ),
-            ],
+                if (_isLoading)
+                  const SizedBox.shrink()
+                else if (_atualizacoes.isEmpty)
+                  const Text(
+                    'Sem atualizações recentes.',
+                    style: TextStyle(color: AppColors.portalTextMuted),
+                  )
+                else
+                  ...List.generate(_atualizacoes.length, (index) {
+                    final item = _atualizacoes[index];
+                    return Column(
+                      children: [
+                        _AtualizacaoItem(
+                          icon: item.icon,
+                          titulo: item.titulo,
+                          descricao: item.descricao,
+                          tempo: item.tempo,
+                          naoLida: item.naoLida,
+                        ),
+                        if (index < _atualizacoes.length - 1)
+                          const Divider(
+                            color: AppColors.portalBorderLight,
+                            height: 24,
+                          ),
+                      ],
+                    );
+                  }),
+              ],
+            ),
           ),
         ),
       ),
@@ -355,9 +536,9 @@ class _PortalClinicaPageState extends State<PortalClinicaPage> {
       // Barra inferior limpa com 5 itens alinhados na mesma linha
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
-        onTap: (index) {
+        onTap: (index) async {
           if (index == 1) {
-            // TODO: abrir criartrabalho.dart
+            await _abrirNovoPedido();
             return;
           }
           setState(() => _currentIndex = index);
@@ -400,6 +581,43 @@ class _PortalClinicaPageState extends State<PortalClinicaPage> {
           const BottomNavigationBarItem(
             icon: Icon(Icons.person_outline),
             label: 'Perfil',
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ErroCard extends StatelessWidget {
+  final String mensagem;
+  final VoidCallback onRetry;
+
+  const _ErroCard({required this.mensagem, required this.onRetry});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: AppColors.portalSurfaceDark,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: AppColors.portalBorderLight),
+      ),
+      child: Row(
+        children: [
+          const Expanded(
+            child: Text(
+              'Não foi possível carregar os dados da base de dados.',
+              style: TextStyle(color: AppColors.portalTextMuted, fontSize: 12),
+            ),
+          ),
+          const SizedBox(width: 10),
+          TextButton(
+            onPressed: onRetry,
+            child: const Text(
+              'Tentar novamente',
+              style: TextStyle(color: AppColors.portalGold),
+            ),
           ),
         ],
       ),
@@ -461,6 +679,7 @@ class _PedidoAtivoCard extends StatelessWidget {
   final String trabalho;
   final String estado;
   final IconData icon;
+  final VoidCallback? onTap;
 
   const _PedidoAtivoCard({
     required this.codigoTipo,
@@ -468,85 +687,87 @@ class _PedidoAtivoCard extends StatelessWidget {
     required this.trabalho,
     required this.estado,
     required this.icon,
+    this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: AppColors.portalSurfaceDark,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.portalBorderLight),
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 48,
-            height: 48,
-            decoration: BoxDecoration(
-              color: AppColors.portalRoleBackground,
-              borderRadius: BorderRadius.circular(12),
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(16),
+      child: Container(
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: AppColors.portalSurfaceDark,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: AppColors.portalBorderLight),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 48,
+              height: 48,
+              decoration: BoxDecoration(
+                color: AppColors.portalRoleBackground,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Icon(icon, color: AppColors.portalCyan),
             ),
-            child: Icon(icon, color: AppColors.portalCyan),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  codigoTipo,
-                  style: const TextStyle(
-                    color: AppColors.portalTextMuted,
-                    fontSize: 11,
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    codigoTipo,
+                    style: const TextStyle(
+                      color: AppColors.portalTextMuted,
+                      fontSize: 11,
+                    ),
                   ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  paciente,
-                  style: const TextStyle(
-                    color: AppColors.portalTextPrimary,
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
+                  const SizedBox(height: 2),
+                  Text(
+                    paciente,
+                    style: const TextStyle(
+                      color: AppColors.portalTextPrimary,
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  trabalho,
-                  style: const TextStyle(
-                    color: AppColors.portalTextMuted,
-                    fontSize: 13,
+                  const SizedBox(height: 2),
+                  Text(
+                    trabalho,
+                    style: const TextStyle(
+                      color: AppColors.portalTextMuted,
+                      fontSize: 13,
+                    ),
                   ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(width: 8),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-            decoration: BoxDecoration(
-              color: AppColors.portalRoleBackground,
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(
-                color: AppColors.portalCyan.withValues(alpha: 0.4),
+                ],
               ),
             ),
-            child: Text(
-              estado,
-              style: const TextStyle(
-                color: AppColors.portalCyan,
-                fontSize: 10,
-                fontWeight: FontWeight.w700,
+            const SizedBox(width: 8),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+              decoration: BoxDecoration(
+                color: AppColors.portalRoleBackground,
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(
+                  color: AppColors.portalCyan.withValues(alpha: 0.4),
+                ),
+              ),
+              child: Text(
+                estado,
+                style: const TextStyle(
+                  color: AppColors.portalCyan,
+                  fontSize: 10,
+                  fontWeight: FontWeight.w700,
+                ),
               ),
             ),
-          ),
-          const SizedBox(width: 6),
-          const Icon(
-            Icons.chevron_right,
-            color: AppColors.portalTextMuted,
-          ),
-        ],
+            const SizedBox(width: 6),
+            const Icon(Icons.chevron_right, color: AppColors.portalTextMuted),
+          ],
+        ),
       ),
     );
   }
