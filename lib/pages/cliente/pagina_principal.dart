@@ -1,9 +1,12 @@
+import 'dart:async';
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 
 import '../route_names.dart';
-import '../theme/app_colors.dart';
 import '../services/auth_api.dart';
-
+import '../theme/app_colors.dart';
 
 // 1. Modelos de dados alinhados com os widgets da página
 class PedidoAtivo {
@@ -40,50 +43,127 @@ class AtualizacaoRecente {
   });
 }
 
-// 2. Serviço da base de dados (substitua o corpo pelas suas chamadas reais)
 class ClinicaRepository {
+  ClinicaRepository({http.Client? client, Uri? baseUri})
+    : _client = client ?? http.Client(),
+      _baseUri = _withTrailingSlash(
+        baseUri ??
+            Uri.parse(
+              const String.fromEnvironment(
+                'API_BASE_URL',
+                defaultValue: 'http://127.0.0.1:8000/api/v1/',
+              ),
+            ),
+      );
+
+  final http.Client _client;
+  final Uri _baseUri;
+
+  static const _requestTimeout = Duration(seconds: 15);
+
   Future<List<PedidoAtivo>> obterPedidosAtivos() async {
-    // TODO: substituir pela consulta real à BD (ex.: Supabase, Firestore, HTTP GET ou SQLite)
-    await Future.delayed(const Duration(milliseconds: 250));
-    return const [
-      PedidoAtivo(
-        id: '1',
-        codigoTipo: '#PT-2026-184 • Digital',
-        paciente: 'Mariana Lopes',
-        trabalho: 'Coroa Dissilicato',
-        estado: 'EM PROCESSAMENTO',
-        icon: Icons.description_outlined,
-      ),
-      PedidoAtivo(
-        id: '2',
-        codigoTipo: '#PT-2026-179 • Físico',
-        paciente: 'João Ferreira',
-        trabalho: 'Prótese Acrílica',
-        estado: 'EM PROCESSAMENTO',
-        icon: Icons.view_in_ar_outlined,
-      ),
-    ];
+    final items = await _getList('pedidos/');
+    return items.map((json) {
+      final codigo = json['codigo'] ?? json['id'] ?? '';
+      final fluxo = (json['fluxo'] ?? json['modalidade'] ?? '').toString();
+      final isDigital = fluxo.toLowerCase().contains('digital');
+
+      return PedidoAtivo(
+        id: '${json['id'] ?? ''}',
+        codigoTipo: fluxo.isNotEmpty ? '$codigo • $fluxo' : '$codigo',
+        paciente: (json['paciente_nome'] ?? json['paciente'] ?? '').toString(),
+        trabalho: (json['tipo_trabalho'] ?? json['trabalho'] ?? '').toString(),
+        estado: (json['estado'] ?? 'EM PROCESSAMENTO').toString().toUpperCase(),
+        icon: isDigital
+            ? Icons.description_outlined
+            : Icons.view_in_ar_outlined,
+      );
+    }).toList();
   }
 
   Future<List<AtualizacaoRecente>> obterAtualizacoesRecentes() async {
-    // TODO: substituir pela consulta real à BD
-    await Future.delayed(const Duration(milliseconds: 250));
-    return const [
-      AtualizacaoRecente(
-        titulo: 'Novas fotografias de prova',
-        descricao: 'O laboratório partilhou conteúdo no pedido #PT-2026-184.',
-        tempo: 'Há 12 min',
-        icon: Icons.camera_alt_outlined,
-        naoLida: true,
-      ),
-      AtualizacaoRecente(
-        titulo: 'Nota do laboratório',
-        descricao: '“Solicitamos validação da tonalidade antes de avançar.”',
-        tempo: 'Ontem, 16:38',
-        icon: Icons.chat_bubble_outline,
-        naoLida: true,
-      ),
-    ];
+    final items = await _getList('atualizacoes/');
+    return items.map((json) {
+      final tipo = (json['tipo'] ?? '').toString().toLowerCase();
+      final isFoto = tipo.contains('foto') || tipo.contains('prova');
+
+      return AtualizacaoRecente(
+        titulo: (json['titulo'] ?? '').toString(),
+        descricao: (json['descricao'] ?? json['mensagem'] ?? '').toString(),
+        tempo: (json['tempo'] ?? json['criado_em'] ?? '').toString(),
+        icon: isFoto ? Icons.camera_alt_outlined : Icons.chat_bubble_outline,
+        naoLida: json['nao_lida'] == true || json['lida'] == false,
+      );
+    }).toList();
+  }
+
+  Future<List<Map<String, dynamic>>> _getList(String path) async {
+    final token = AuthApi.currentSession?.accessToken;
+    if (token == null || token.isEmpty) {
+      throw const AuthApiException(
+        'Não existe uma sessão autenticada para carregar estes dados.',
+      );
+    }
+
+    final http.Response response;
+    try {
+      response = await _client
+          .get(
+            _baseUri.resolve(path),
+            headers: {
+              'Accept': 'application/json',
+              'Authorization': 'Bearer $token',
+            },
+          )
+          .timeout(_requestTimeout);
+    } on TimeoutException {
+      throw const AuthApiException('A ligação à API excedeu o tempo limite.');
+    } on http.ClientException {
+      throw const AuthApiException(
+        'Não foi possível contactar a API. Confirma se o backend está ativo.',
+      );
+    }
+
+    final Object? decoded;
+    try {
+      decoded = jsonDecode(response.body);
+    } on FormatException {
+      throw const AuthApiException('A API devolveu uma resposta inválida.');
+    }
+
+    if (response.statusCode < 200 || response.statusCode >= 300) {
+      final detail = decoded is Map<String, dynamic> ? decoded['detail'] : null;
+      throw AuthApiException(
+        detail is String
+            ? detail
+            : 'A API recusou o pedido (${response.statusCode}).',
+      );
+    }
+
+    final List<dynamic> items;
+    if (decoded is List) {
+      items = decoded;
+    } else if (decoded is Map<String, dynamic> && decoded['results'] is List) {
+      items = decoded['results'] as List;
+    } else {
+      throw const AuthApiException('A API devolveu uma lista inválida.');
+    }
+
+    return items.map((item) {
+      if (item is! Map<String, dynamic>) {
+        throw const AuthApiException(
+          'A API devolveu um item com formato inválido.',
+        );
+      }
+      return item;
+    }).toList();
+  }
+
+  static Uri _withTrailingSlash(Uri uri) {
+    if (uri.path.endsWith('/')) {
+      return uri;
+    }
+    return uri.replace(path: '${uri.path}/');
   }
 }
 
@@ -128,10 +208,16 @@ class _PaginaClinicaPageState extends State<PaginaClinicaPage> {
         _atualizacoes = resultados[1] as List<AtualizacaoRecente>;
         _isLoading = false;
       });
-    } catch (e) {
+    } on AuthApiException catch (error) {
       if (!mounted) return;
       setState(() {
-        _erroMensagem = 'Não foi possível carregar os dados da base de dados.';
+        _erroMensagem = error.message;
+        _isLoading = false;
+      });
+    } catch (error) {
+      if (!mounted) return;
+      setState(() {
+        _erroMensagem = 'Erro inesperado ao carregar dados: $error';
         _isLoading = false;
       });
     }
@@ -605,9 +691,9 @@ class _ErroCard extends StatelessWidget {
       ),
       child: Row(
         children: [
-          const Expanded(
+          Expanded(
             child: Text(
-              'Não foi possível carregar os dados da base de dados.',
+              mensagem,
               style: TextStyle(color: AppColors.portalTextMuted, fontSize: 12),
             ),
           ),
